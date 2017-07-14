@@ -96,13 +96,13 @@ public class WebSocketService extends Service implements IWebSocketCallBack {
             LogUtil.e(TAG+"--go in---","进入检测 reConnecCount"+reConnecCount);
             if (System.currentTimeMillis() - sendTime >= HEART_BEAT_RATE+SLEEPTIME) {
                 LogUtil.e(TAG+"--heartBeatRunnable---","心跳检测+reConnecCount"+reConnecCount);
-                if(re_network < 0){//这re_network是我们后台可维护的
+                if(re_network < 0){//这re_network是我们后台可维护的,我在这并没有给出怎么获取的
                     timer.cancel();
                     EventBus.getDefault().post(
                             new WebSocketCallEvent(1));//超过重连次数要进行检测是客户端出问题还是后台出问题，然后给用户一个友好提示
                 }else{
                     webSocketUtil.requestNetWork();
-                    if(reConnecCount >= re_network){
+                    if(reConnecCount > re_network){
                         reConnecCount = 0;
                         EventBus.getDefault().post(
                                 new WebSocketCallEvent(1));
@@ -127,13 +127,8 @@ public class WebSocketService extends Service implements IWebSocketCallBack {
     @Override
     public void onOpen(ServerHandshake handshakedata) {
         LogUtil.e(TAG+"---onOpen心跳---","onOpen--webSocketRun");
-        try{
-            webSocketUtil.sendMessage("open"); //起初客户端连上要个服务端发一个消息，表示你连上了，然后服务端会给你回应进行心跳
-            sendTime = System.currentTimeMillis();
-        }catch (WebsocketNotConnectedException e){
-            e.printStackTrace();
-            webSocketUtil.requestNetWork();
-        }
+        webSocketUtil.sendMessage("open"); //起初客户端连上要个服务端发一个消息，表示你连上了，然后服务端会给你回应进行心跳
+        sendTime = System.currentTimeMillis();
     }
 
     @Override
